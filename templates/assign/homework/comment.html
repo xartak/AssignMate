@@ -1,0 +1,12 @@
+{% extends "assign/base.html" %}
+
+{% block title %}Add a comment{% endblock %}
+
+{% block content %}
+    {% if comment %}
+        <h2>Your comment has been added.</h2>
+        <p><a href="{{ homework.get_absolute_url }}">Back to the homework</a></p>
+    {% else %}
+        {% include "assign/homework/includes/comment_form.html" %}
+    {% endif %}
+{% endblock %}
