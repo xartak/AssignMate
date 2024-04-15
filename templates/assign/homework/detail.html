@@ -1,4 +1,5 @@
 {% extends "assign/base.html" %}
+{% load assign_tags %}
 
 {% block title %}{{ homework.title }}{% endblock %}
 
@@ -7,12 +8,21 @@
     <p class="date">
         Published {{ homework.publish }} by {{ homework.author }}
     </p>
-    {{ homework.body|linebreaks }}
+    {{ homework.body|markdown }}
     <p>
         <a href="{% url 'assign:homework_share' homework.id %}">
             Share this Homework
         </a>
     </p>
+    <h2>Similar homeworks</h2>
+    {% for homework in similar_homeworks %}
+        <p>
+            <a href="{{ homework.get_absolute_url }}">{{homework.title }}</a>
+        </p>
+    {% empty %}
+        There are no similar homeworks yet.
+    {% endfor %}
+    
     {% with comments.count as total_comments %}
         <h2>
             {{ total_comments }} comment{{ total_comments|pluralize }}
@@ -29,5 +39,5 @@
     {% empty %}
         <p>There are no comments.</p>
     {% endfor %}
-    {% include "assign/homework/includes/comment_form.html" %}  
+    {% include "assign/homework/includes/comment_form.html" %}
 {% endblock %}

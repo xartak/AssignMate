@@ -6,6 +6,7 @@ from .forms import EmailHomeworkForm, CommentForm
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
+from django.db.models import Count
 
 """
 #Альтернативное представление списка постов
@@ -56,11 +57,19 @@ def homework_detail(request, year, month, day, homework):
     comments = homework.comments.filter(active=True)
     # Форма для комментирования пользователями
     form = CommentForm()
+
+
+    homework_tags_ids = homework.tags.values_list('id', flat=True)
+    similar_homeworks = Homework.published.filter(tags__in=homework_tags_ids) \
+        .exclude(id=homework.id)
+    similar_homeworks = similar_homeworks.annotate(same_tags=Count('tags')) \
+                        .order_by('-same_tags', '-publish')[:4]
     return render(request,
                   'assign/homework/detail.html',
                   {'homework': homework,
                    'comments': comments,
-                   'form': form})
+                   'form': form,
+                   'similar_homeworks': similar_homeworks})
 
 def homework_share(request, homework_id):
     # Извлечь пост по его идентификатору id
