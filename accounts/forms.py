@@ -9,6 +9,7 @@ class SignUpForm(UserCreationForm):
     last_name = forms.CharField(max_length=100)
     username = forms.CharField(max_length=100)
     email = forms.EmailField()
+    role = forms.ChoiceField(choices=Profile.ROLE_CHOICES, label="I am a:")
     password1 = forms.CharField(max_length=50, widget=forms.PasswordInput())
     password2 = forms.CharField(max_length=50, widget=forms.PasswordInput())
 

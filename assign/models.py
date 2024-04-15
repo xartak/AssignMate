@@ -78,3 +78,28 @@ class Comment(models.Model):
     def __str__(self):
         return f'Comment by {self.name} on {self.homework}'
 
+from django.db import models
+from django.utils import timezone
+from django.contrib.auth.models import User
+
+class HomeworkSolution(models.Model):
+    # Ссылка на домашнее задание
+    homework = models.ForeignKey(Homework, on_delete=models.CASCADE, related_name='solutions')
+
+    # Студент, отправивший решение
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='homework_solutions')
+
+    # Текстовый ответ обязателен
+    answer_text = models.TextField()
+
+    # PDF-файл необязателен
+    answer_pdf = models.FileField(upload_to='homework_solutions/', null=True, blank=True)
+
+    # Дата создания и обновления решения
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.homework.title} - {self.student.username}"
+
+

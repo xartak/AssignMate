@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Homework, Comment
+from .models import Homework, Comment, HomeworkSolution
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from .forms import EmailHomeworkForm, CommentForm
@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
+from django.contrib.auth.decorators import login_required
 
 """
 #Альтернативное представление списка постов
@@ -18,6 +19,11 @@ class HomeworkListView(ListView):
     paginate_by = 3
     template_name = 'assign/homework/list.html'
 """
+def is_student(user):
+    return hasattr(user, 'profile') and user.profile.role == 'student'
+
+def is_teacher(user):
+    return hasattr(user, 'profile') and user.profile.role == 'teacher'
 
 def homework_list(request, tag_slug=None):
     homework_list = Homework.published.all()
@@ -64,12 +70,25 @@ def homework_detail(request, year, month, day, homework):
         .exclude(id=homework.id)
     similar_homeworks = similar_homeworks.annotate(same_tags=Count('tags')) \
                         .order_by('-same_tags', '-publish')[:4]
+
+    solutions = None
+    can_submit_solution = False  # Значение по умолчанию для переменной
+
+    if is_teacher(request.user):
+        solutions = homework.solutions.all()
+    elif is_student(request.user):
+        solutions = homework.solutions.filter(student=request.user)
+        can_submit_solution = not solutions.exists()
+
     return render(request,
                   'assign/homework/detail.html',
                   {'homework': homework,
                    'comments': comments,
                    'form': form,
-                   'similar_homeworks': similar_homeworks})
+                   'similar_homeworks': similar_homeworks,
+                   'solutions': solutions,
+                   'can_submit_solution': can_submit_solution
+                   })
 
 def homework_share(request, homework_id):
     # Извлечь пост по его идентификатору id
@@ -118,3 +137,33 @@ def homework_comment(request, homework_id):
                   {'homework': homework,
                    'form': form,
                    'comment': comment})
+
+@login_required
+def submit_solution(request, homework_id):
+    homework = get_object_or_404(Homework, id=homework_id)
+    if not is_student(request.user):
+        return redirect('')  # или страница ошибки
+
+    if request.method == 'POST':
+        answer_text = request.POST.get('answer_text')
+        answer_pdf = request.FILES.get('answer_pdf', None)
+
+        solution = HomeworkSolution(homework=homework, student=request.user, answer_text=answer_text,
+                                    answer_pdf=answer_pdf)
+        solution.save()
+
+        return redirect(homework.get_absolute_url())  # Редирект на страницу домашнего задания
+
+    return render(request, 'assign/homework/submit_solution.html', {'homework': homework})
+
+@login_required
+def delete_solution(request, solution_id):
+    solution = get_object_or_404(HomeworkSolution, id=solution_id, student=request.user)
+    if request.method == 'POST':
+        solution.delete()
+        return redirect('assign:homework_list')  # Или другой URL, куда нужно перейти после удаления
+    else:
+        return render(request, 'assign/homework/confirm_delete.html', {
+            'solution': solution,
+            'homework': solution.homework  # Добавляем объект homework в контекст
+        })

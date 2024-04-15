@@ -15,6 +15,10 @@
         <p>Email: {{ form.email }}</p>
         <p>First Name: {{ form.first_name }}</p>
         <p>Last Name: {{ form.last_name }}</p>
+        <p>Role: <select name="role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+        </select></p>
         <p>Password: {{ form.password1 }}</p>
         <p>Confirm Password: {{ form.password2 }}</p>
         <button type="submit">Sign Up</button>

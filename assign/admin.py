@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Homework, Comment
-
+from .models import HomeworkSolution
 
 @admin.register(Homework)
 class HomeworkAdmin(admin.ModelAdmin):
@@ -18,3 +18,9 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ['name', 'email', 'homework', 'created', 'active']
     list_filter = ['active', 'created', 'updated']
     search_fields = ['name', 'email', 'body']
+
+@admin.register(HomeworkSolution)
+class HomeworkSolutionAdmin(admin.ModelAdmin):
+    list_display = ['homework', 'student', 'created', 'updated']
+    list_filter = ['created', 'updated', 'student']
+    search_fields = ['answer_text', 'homework__title']

@@ -4,40 +4,76 @@
 {% block title %}{{ homework.title }}{% endblock %}
 
 {% block content %}
-    <h1>{{ homework.title }}</h1>
-    <p class="date">
-        Published {{ homework.publish }} by {{ homework.author }}
-    </p>
-    {{ homework.body|markdown }}
+<h1>{{ homework.title }}</h1>
+<p class="date">
+    Published {{ homework.publish }} by {{ homework.author }}
+</p>
+{{ homework.body|markdown }}
+
+<p>
+    <a href="{% url 'assign:homework_share' homework.id %}">
+        Share this Homework
+    </a>
+</p>
+
+<h2>Similar homeworks</h2>
+{% for homework in similar_homeworks %}
     <p>
-        <a href="{% url 'assign:homework_share' homework.id %}">
-            Share this Homework
-        </a>
+        <a href="{{ homework.get_absolute_url }}">{{ homework.title }}</a>
     </p>
-    <h2>Similar homeworks</h2>
-    {% for homework in similar_homeworks %}
-        <p>
-            <a href="{{ homework.get_absolute_url }}">{{homework.title }}</a>
+{% empty %}
+    <p>There are no similar homeworks yet.</p>
+{% endfor %}
+
+{% if can_submit_solution and not is_teacher %}
+    <button onclick="location.href='{% url 'assign:submit_solution' homework.id %}'">Submit Solution</button>
+{% else %}
+    {% if is_student %}
+        <p>You have already submitted a solution.</p>
+    {% endif %}
+{% endif %}
+
+{% if solutions %}
+    <h3>Submitted Solutions</h3>
+    <ul>
+    {% for solution in solutions %}
+        <li>
+            {{ solution.student.username }}'s solution:
+            <div>
+                <div class="preformatted-text">{{ solution.answer_text|markdown }}</div>
+                {% if solution.answer_pdf %}
+                    <a href="{{ solution.answer_pdf.url }}">Download PDF</a>
+                {% else %}
+                    <p>No file submitted.</p>
+                {% endif %}
+                {% if solution.student == request.user %}
+                    <br>
+                    <a href="{% url 'assign:delete_solution' solution.id %}">Delete this solution</a>
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No solutions submitted yet.</p>
+{% endif %}
+
+{% with comments.count as total_comments %}
+    <h2>
+        {{ total_comments }} comment{{ total_comments|pluralize }}
+    </h2>
+{% endwith %}
+
+{% for comment in comments %}
+    <div class="comment">
+        <p class="info">
+            Comment {{ forloop.counter }} by {{ comment.name }}
+            {{ comment.created }}
         </p>
-    {% empty %}
-        There are no similar homeworks yet.
-    {% endfor %}
-    
-    {% with comments.count as total_comments %}
-        <h2>
-            {{ total_comments }} comment{{ total_comments|pluralize }}
-        </h2>
-    {% endwith %}
-    {% for comment in comments %}
-        <div class="comment">
-            <p class="info">
-                Comment {{ forloop.counter }} by {{ comment.name }}
-                {{ comment.created }}
-            </p>
-            {{ comment.body|linebreaks }}
-        </div>
-    {% empty %}
-        <p>There are no comments.</p>
-    {% endfor %}
-    {% include "assign/homework/includes/comment_form.html" %}
+        {{ comment.body|linebreaks }}
+    </div>
+{% empty %}
+    <p>There are no comments yet.</p>
+{% endfor %}
+{% include "assign/homework/includes/comment_form.html" %}
 {% endblock %}

@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-app_name = 'blog'
+app_name = 'assign'
 
 urlpatterns = [
     path('', views.homework_list, name='homework_list'),
@@ -19,4 +19,11 @@ urlpatterns = [
 
     path('<int:homework_id>/comment/',
          views.homework_comment, name='homework_comment'),
+
+    path('<int:homework_id>/submit/',
+         views.submit_solution, name='submit_solution'),
+
+    path('solution/delete/<int:solution_id>/',
+         views.delete_solution, name='delete_solution'),
+
 ]

@@ -8,7 +8,7 @@ from .forms import SignUpForm, LoginForm, UpdateUserForm, UpdateProfileForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
-
+from .models import Profile
 
 
 
@@ -31,15 +31,12 @@ class SignUpView(generic.CreateView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-
         if form.is_valid():
-            form.save()
-
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}')
-
-            return redirect(to='login') # редирект на страницу логина после регистрации
-
+            user = form.save()  # Сохраняем пользователя
+            role = request.POST.get('role', 'student')  # Получаем роль из формы
+            Profile.objects.create(user=user, role=role)  # Создаем профиль с выбранной ролью
+            messages.success(request, f'Account created for {user.username}')
+            return redirect('login')  # редирект на страницу логина после регистрации
         return render(request, self.template_name, {'form': form})
 
 class CustomLoginView(LoginView):
