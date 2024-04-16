@@ -1,5 +1,6 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Homework, Comment, HomeworkSolution
+from .models import Homework, Comment, HomeworkSolution, Course, Enrollment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from .forms import EmailHomeworkForm, CommentForm
@@ -7,88 +8,89 @@ from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
-from django.contrib.auth.decorators import login_required
+from django.http import Http404
+from AssignMate2 import settings
 
-"""
-#Альтернативное представление списка постов
 
-class HomeworkListView(ListView):
-
-    queryset = Homework.published.all()
-    context_object_name = 'homeworks'
-    paginate_by = 3
-    template_name = 'assign/homework/list.html'
-"""
 def is_student(user):
     return hasattr(user, 'profile') and user.profile.role == 'student'
+
 
 def is_teacher(user):
     return hasattr(user, 'profile') and user.profile.role == 'teacher'
 
+
+@login_required
+def courses_list(request):
+    if is_teacher(request.user):
+        courses = Course.objects.filter(creator=request.user)
+    else:
+        courses = Course.objects.filter(enrollments__student=request.user)
+    return render(request, 'assign/course/list.html', {'courses': courses})
+
+
+@login_required
+def course_detail(request, pk):
+    course = get_object_or_404(Course, pk=pk)  # использование pk как идентификатора для поиска курса
+    if not (course.creator == request.user or Enrollment.objects.filter(course=course, student=request.user).exists()):
+        raise Http404("You do not have permission to view this course.")
+    homeworks = course.homeworks.all()
+    return render(request, 'assign/course/detail.html', {'course': course, 'homeworks': homeworks})
+
 def homework_list(request, tag_slug=None):
-    homework_list = Homework.published.all()
+    if is_teacher(request.user):
+        homework_list = Homework.objects.filter(author=request.user)
+    else:
+        enrolled_courses = Course.objects.filter(enrollments__student=request.user)
+        homework_list = Homework.objects.filter(course__in=enrolled_courses)
 
     tag = None
     if tag_slug:
         tag = get_object_or_404(Tag, slug=tag_slug)
         homework_list = homework_list.filter(tags__in=[tag])
-
-    # Постраничная разбивка с 3 постами на страницу
-    paginator = Paginator(homework_list, 3)
-    page_number = request.GET.get('page', 1)
+    paginator = Paginator(homework_list, 3)  # постраничная разбивка
+    page_number = request.GET.get('page')
     try:
         homeworks = paginator.page(page_number)
     except PageNotAnInteger:
-        # Если page_number не целое число, то
-        # выдать первую страницу
         homeworks = paginator.page(1)
     except EmptyPage:
-        # Если page_number находится вне диапазона, то
-        # выдать последнюю страницу результатов
         homeworks = paginator.page(paginator.num_pages)
-    return render(request,
-                  'assign/homework/list.html',
-                  {'homeworks': homeworks,
-                   'tag': tag})
+    return render(request, 'assign/homework/list.html', {'page': page_number, 'homeworks': homeworks, 'tag': tag})
 
 
-def homework_detail(request, year, month, day, homework):
-    homework = get_object_or_404(Homework,
-                             status=Homework.Status.PUBLISHED,
-                             slug=homework,
-                             publish__year=year,
-                             publish__month=month,
-                             publish__day=day)
-    # Список активных комментариев к этому посту
+@login_required
+def homework_detail(request, year, month, day, homework_slug):
+    homework = get_object_or_404(Homework, slug=homework_slug,
+                                 publish__year=year, publish__month=month, publish__day=day)
+    if not (homework.course.creator == request.user or Enrollment.objects.filter(course=homework.course,
+                                                                                 student=request.user).exists()):
+        raise Http404("You do not have permission to view this homework.")
+
+    # Проверяем, может ли пользователь отправить решение
+    solutions = homework.solutions.filter(student=request.user)
+    can_submit_solution = is_student(request.user) and not solutions.exists()
+
     comments = homework.comments.filter(active=True)
-    # Форма для комментирования пользователями
-    form = CommentForm()
+    new_comment = None
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.homework = homework
+            new_comment.save()
+    else:
+        comment_form = CommentForm()
 
+    return render(request, 'assign/homework/detail.html', {
+        'homework': homework,
+        'comments': comments,
+        'new_comment': new_comment,
+        'comment_form': comment_form,
+        'can_submit_solution': can_submit_solution,
+        'solutions': solutions
+    })
 
-    homework_tags_ids = homework.tags.values_list('id', flat=True)
-    similar_homeworks = Homework.published.filter(tags__in=homework_tags_ids) \
-        .exclude(id=homework.id)
-    similar_homeworks = similar_homeworks.annotate(same_tags=Count('tags')) \
-                        .order_by('-same_tags', '-publish')[:4]
-
-    solutions = None
-    can_submit_solution = False  # Значение по умолчанию для переменной
-
-    if is_teacher(request.user):
-        solutions = homework.solutions.all()
-    elif is_student(request.user):
-        solutions = homework.solutions.filter(student=request.user)
-        can_submit_solution = not solutions.exists()
-
-    return render(request,
-                  'assign/homework/detail.html',
-                  {'homework': homework,
-                   'comments': comments,
-                   'form': form,
-                   'similar_homeworks': similar_homeworks,
-                   'solutions': solutions,
-                   'can_submit_solution': can_submit_solution
-                   })
 
 def homework_share(request, homework_id):
     # Извлечь пост по его идентификатору id

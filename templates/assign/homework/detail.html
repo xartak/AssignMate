@@ -8,6 +8,9 @@
 <p class="date">
     Published {{ homework.publish }} by {{ homework.author }}
 </p>
+<p>
+    Course: <a href="{% url 'assign:course_detail' pk=homework.course.id %}">{{ homework.course.title }}</a>
+</p>    
 {{ homework.body|markdown }}
 
 <p>

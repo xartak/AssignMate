@@ -12,6 +12,43 @@ class PublishedManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()\
                       .filter(status=Homework.Status.PUBLISHED)
+
+class Course(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = 'DF', 'Draft'
+        PUBLISHED = 'PB', 'Published'
+    title = models.CharField(max_length=250)
+    slug = models.SlugField(max_length=250,
+                            unique_for_month="publish")
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_courses',  # Уникальное имя для обратной связи
+        null=True,
+        blank=True
+    )
+    publish = models.DateTimeField(default=timezone.now)  # поле дата публикации
+    status = models.CharField(max_length=2,
+                              choices=Status.choices,
+                              default=Status.DRAFT)
+
+    class Meta:  # класс определяет метаданные модели.
+        ordering = ['-publish']  # сортировка
+        indexes = [
+            models.Index(fields=['-publish']),  # индексация
+        ]
+
+    def str(self):
+        return f'Created by {self.creator}'
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+
+    def __str__(self):
+        return f'{self.student.username} enrolled in {self.course.title}'
+
+
 class Homework(models.Model):
 
     #статус публикации - опубликованный / не опубликованный
@@ -25,6 +62,7 @@ class Homework(models.Model):
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='assign_homeworks')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='homeworks', null=True, blank=True)
     body = models.TextField()
     pdf = models.FileField(upload_to=upload_to, null=True, blank=True)
 
@@ -78,9 +116,6 @@ class Comment(models.Model):
     def __str__(self):
         return f'Comment by {self.name} on {self.homework}'
 
-from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import User
 
 class HomeworkSolution(models.Model):
     # Ссылка на домашнее задание
