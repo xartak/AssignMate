@@ -21,12 +21,6 @@ def is_student(user):
 def is_teacher(user):
     return hasattr(user, 'profile') and user.profile.role == 'teacher'
 
-def user_is_student(user):
-    return hasattr(user, 'profile') and user.profile.role == 'student'
-
-def user_is_teacher(user):
-    return hasattr(user, 'profile') and user.profile.role == 'teacher'
-
 
 @login_required
 def courses_list(request):
@@ -76,7 +70,8 @@ def homework_detail(request, year, month, day, homework_slug):
                                                                                  student=request.user).exists()):
         raise Http404("You do not have permission to view this homework.")
 
-    # Для преподавателей показываем все решения, для студентов — только их собственные
+    # Используем функции для проверки роли пользователя
+
     if is_teacher(request.user):
         solutions = homework.solutions.all()
     else:
@@ -95,14 +90,17 @@ def homework_detail(request, year, month, day, homework_slug):
     else:
         comment_form = CommentForm()
 
+
     return render(request, 'assign/homework/detail.html', {
         'homework': homework,
         'comments': comments,
         'new_comment': new_comment,
         'comment_form': comment_form,
         'can_submit_solution': can_submit_solution,
-        'solutions': solutions
+        'solutions': solutions,
+        'is_teacher': is_teacher(request.user)  # передаем флаг в шаблон
     })
+
 def homework_share(request, homework_id):
     # Извлечь пост по его идентификатору id
     homework = get_object_or_404(Homework,

@@ -13,7 +13,7 @@ a {
 }
 
 h1 {
-    font-weight: normal;
+    font-weight: bold;
     border-bottom: 1px solid #bbb;
 }
 
@@ -37,6 +37,7 @@ h2 {
     padding: 0; 
     position: relative;
     font-family: "Baloo 2"; 
+    font-size: 1.75em;
     font-weight: bold;
     color: #fff;
     border-bottom: none;
@@ -64,6 +65,10 @@ nav span a {
     box-shadow: 3px 3px 3px 3px #8e8e8e8a;
     border-radius: 15px;
     margin: 5% auto;
+}
+
+#content > div:not(:last-child) {
+    border-bottom: 1px solid #ccc; /* Линия-разделитель */
 }
 
 p.date {
