@@ -14,6 +14,14 @@
   <body>
     <header id="header">
       <h1 class="header_title">AssignMate</h1>
+      {% if 'signup' not in request.path and 'login' not in request.path %}
+        <nav>
+          <ul>
+            <a href="/"><li>мои курсы</li></a>
+            <a href="{% url 'users-profile' %}"><li>профиль</li></a>
+          </ul>
+        </nav>
+      {% endif %}
     </header>
 
     <div id="content">
@@ -31,7 +39,7 @@
   {% comment %} <div id="sidebar">
     <h2>Assignmate</h2>
     <p>
-      It has {% total_homeworks %} homeworks.
+      It has{% total_homeworks %}homeworks.
     </p>
     <hr />
     {% if user.is_authenticated %}
@@ -61,5 +69,4 @@
     <h3>Latest Homeworks</h3>
     {% show_latest_homeworks 5 %}
   </div> {% endcomment %}
-
 </html>
