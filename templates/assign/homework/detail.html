@@ -8,12 +8,27 @@
 <p class="date">
     Published {{ homework.publish }} by {{ homework.author }}
 </p>
+    
+{% if request.user == homework.author or request.user.is_staff %}
+    <form method="post" action="{% url 'assign:delete_homework' homework.id %}">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
+{% endif %}
+    
 <p>
     Course: <a href="{% url 'assign:course_detail' pk=homework.course.id %}">{{ homework.course.title }}</a>
 </p>    
 {{ homework.body|markdown }}
-
+{% if homework.pdf %}
+    <p>
+        <a href="{{ homework.pdf.url }}" target="_blank">Download Attached PDF</a>
+    </p>
+{% else %}
+    <p>No attached PDF.</p>
+{% endif %}
 <p>
+
     <a href="{% url 'assign:homework_share' homework.id %}">
         Share this Homework
     </a>

@@ -10,6 +10,8 @@ from taggit.models import Tag
 from django.db.models import Count
 from django.http import Http404
 from AssignMate2 import settings
+from .forms import HomeworkForm
+from django.contrib import messages
 
 
 def is_student(user):
@@ -169,3 +171,37 @@ def delete_solution(request, solution_id):
             'solution': solution,
             'homework': solution.homework  # Добавляем объект homework в контекст
         })
+
+
+@login_required
+def add_homework(request):
+    if request.method == 'POST':
+        form = HomeworkForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            new_homework = form.save(commit=False)
+            new_homework.author = request.user  # Установка автора
+            new_homework.save()
+            form.save_m2m()  # Сохранение связей многие-ко-многим, включая теги
+            messages.success(request, 'Homework was added successfully!')
+            return redirect(new_homework.get_absolute_url())
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = HomeworkForm(user=request.user)  # Передача пользователя в форму для инициализации
+
+    return render(request, 'assign/homework/add_homework.html', {'form': form})
+
+@login_required
+def delete_homework(request, homework_id):
+    homework = get_object_or_404(Homework, id=homework_id)
+    course_id = homework.course.id  # сохраняем ID курса для редиректа
+
+    if request.method == 'POST':
+        if homework.author == request.user or request.user.is_superuser:
+            homework.delete()
+            messages.success(request, "Homework deleted successfully.")
+            return redirect('assign:course_detail', pk=course_id)
+        else:
+            messages.error(request, "You do not have permission to delete this homework.")
+
+    return redirect('assign:course_detail', pk=course_id)  # редирект обратно на страницу курса

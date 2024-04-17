@@ -6,12 +6,17 @@
 {% block content %}
 <h1>{{ course.title }}</h1>
 <p>Created by {{ course.creator.username }} on {{ course.publish.date }}</p>
+
+{% if request.user == course.creator %}
+    <p><a href="{% url 'assign:add_homework' %}?course_id={{ course.pk }}">Add New Homework</a></p>
+{% endif %}
+
 {% if course.homeworks.exists %}
     <h2>Homeworks</h2>
     {% for homework in homeworks %}
         <div>
             <h3><a href="{{ homework.get_absolute_url }}">{{ homework.title }}</a></h3>
-            <p>Course: <a href="{% url 'assign:course_detail' pk=course.pk %}">{{ course.title }}</a>
+            <p>Course: <a href="{% url 'assign:course_detail' pk=course.pk %}">{{ course.title }}</a></p>
             <p class="tags">
                 Tags:
                 {% for tag in homework.tags.all %}

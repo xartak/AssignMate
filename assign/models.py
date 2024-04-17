@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 from taggit.managers import TaggableManager
+from django.utils.text import slugify
+from taggit.forms import TagField
 
 # PDF-файл будет сохранен в директории homework_pdfs, созданной на основе поля slug объекта Homework
 def upload_to(instance, filename):
@@ -24,6 +26,7 @@ class Course(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='created_courses',  # Уникальное имя для обратной связи
+        limit_choices_to={'profile__role': 'teacher'},
         null=True,
         blank=True
     )
@@ -40,6 +43,9 @@ class Course(models.Model):
 
     def str(self):
         return f'Created by {self.creator}'
+
+    def __str__(self):
+        return self.title
 
 class Enrollment(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
@@ -61,6 +67,7 @@ class Homework(models.Model):
                             unique_for_date='publish')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
+                               limit_choices_to={'profile__role': 'teacher'},
                                related_name='assign_homeworks')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='homeworks', null=True, blank=True)
     body = models.TextField()
@@ -71,7 +78,7 @@ class Homework(models.Model):
     updated = models.DateTimeField(auto_now=True)  # поле дата изменения
     status = models.CharField(max_length=2,
                               choices=Status.choices,
-                              default=Status.DRAFT)
+                              default=Status.PUBLISHED)
     tags = TaggableManager()
 
     #Для взаимодействия с ORM, с class PublishedManager
@@ -84,6 +91,11 @@ class Homework(models.Model):
         indexes = [
             models.Index(fields=['-publish']), #индексация
         ]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Homework, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('assign:homework_detail',
