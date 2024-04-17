@@ -5,6 +5,7 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 from django.utils.text import slugify
 from taggit.forms import TagField
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # PDF-файл будет сохранен в директории homework_pdfs, созданной на основе поля slug объекта Homework
 def upload_to(instance, filename):
@@ -145,6 +146,9 @@ class HomeworkSolution(models.Model):
     # Дата создания и обновления решения
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    grade = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    teacher_comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.homework.title} - {self.student.username}"

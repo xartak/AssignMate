@@ -1,5 +1,5 @@
 from django import forms
-from .models import Comment, Homework, Course
+from .models import Comment, Homework, Course, HomeworkSolution
 from taggit.forms import TagField
 
 class EmailHomeworkForm(forms.Form):
@@ -26,3 +26,12 @@ class HomeworkForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user:
             self.fields['course'].queryset = Course.objects.filter(creator=user)
+
+class HomeworkReviewForm(forms.ModelForm):
+    class Meta:
+        model = HomeworkSolution
+        fields = ['grade', 'teacher_comment']
+        widgets = {
+            'teacher_comment': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
+            'grade': forms.NumberInput(attrs={'min': 0, 'max': 100})
+        }

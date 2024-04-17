@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Homework, Comment, HomeworkSolution, Course, Enrollment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
-from .forms import EmailHomeworkForm, CommentForm
+from .forms import EmailHomeworkForm, CommentForm, HomeworkReviewForm
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
@@ -21,6 +21,12 @@ def is_student(user):
 def is_teacher(user):
     return hasattr(user, 'profile') and user.profile.role == 'teacher'
 
+def user_is_student(user):
+    return hasattr(user, 'profile') and user.profile.role == 'student'
+
+def user_is_teacher(user):
+    return hasattr(user, 'profile') and user.profile.role == 'teacher'
+
 
 @login_required
 def courses_list(request):
@@ -28,6 +34,7 @@ def courses_list(request):
         courses = Course.objects.filter(creator=request.user)
     else:
         courses = Course.objects.filter(enrollments__student=request.user)
+
     return render(request, 'assign/course/list.html', {'courses': courses})
 
 
@@ -69,8 +76,12 @@ def homework_detail(request, year, month, day, homework_slug):
                                                                                  student=request.user).exists()):
         raise Http404("You do not have permission to view this homework.")
 
-    # Проверяем, может ли пользователь отправить решение
-    solutions = homework.solutions.filter(student=request.user)
+    # Для преподавателей показываем все решения, для студентов — только их собственные
+    if is_teacher(request.user):
+        solutions = homework.solutions.all()
+    else:
+        solutions = homework.solutions.filter(student=request.user)
+
     can_submit_solution = is_student(request.user) and not solutions.exists()
 
     comments = homework.comments.filter(active=True)
@@ -92,8 +103,6 @@ def homework_detail(request, year, month, day, homework_slug):
         'can_submit_solution': can_submit_solution,
         'solutions': solutions
     })
-
-
 def homework_share(request, homework_id):
     # Извлечь пост по его идентификатору id
     homework = get_object_or_404(Homework,
@@ -205,3 +214,20 @@ def delete_homework(request, homework_id):
             messages.error(request, "You do not have permission to delete this homework.")
 
     return redirect('assign:course_detail', pk=course_id)  # редирект обратно на страницу курса
+
+@login_required
+def review_homework(request, solution_id):
+    solution = get_object_or_404(HomeworkSolution, pk=solution_id, homework__course__creator=request.user)
+
+    if not is_teacher(request.user):
+        raise Http404("You do not have permission to review this solution.")
+
+    if request.method == 'POST':
+        form = HomeworkReviewForm(request.POST, instance=solution)
+        if form.is_valid():
+            form.save()
+            return redirect('assign:homework_detail', year=solution.homework.publish.year, month=solution.homework.publish.month, day=solution.homework.publish.day, homework_slug=solution.homework.slug)
+    else:
+        form = HomeworkReviewForm(instance=solution)
+
+    return render(request, 'assign/homework/homework_review.html', {'form': form})

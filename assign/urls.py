@@ -37,4 +37,7 @@ urlpatterns = [
 
     path('homework/<int:homework_id>/delete/',
          views.delete_homework, name='delete_homework'),
+
+    path('homework/<int:solution_id>/review/',
+         views.review_homework, name='review_homework'),
 ]
