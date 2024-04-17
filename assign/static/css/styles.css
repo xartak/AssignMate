@@ -22,7 +22,8 @@ h2 {
 }
 
 #header {
-    position: fixed top;
+    position: fixed;
+    top: 0;
     display: flex;
     width: 100%;
     height: 7%;
@@ -62,7 +63,7 @@ nav span a {
     width: 80%;
     box-shadow: 3px 3px 3px 3px #8e8e8e8a;
     border-radius: 15px;
-    margin: 2% auto;
+    margin: 5% auto;
 }
 
 p.date {
@@ -87,14 +88,6 @@ input[type=submit] {
     padding: 10px 20px;
     font-size: 14px;
     text-transform: uppercase;
-}
-
-.reg_form {
-    padding: 2%;
-    width: 30%;
-    box-shadow: 3px 3px 3px 3px #8e8e8e8a;
-    border-radius: 15px;
-    margin: 0 auto;
 }
 
 .errorlist {

@@ -3,6 +3,11 @@
   Регистрация
 {% endblock %}
 {% block content %}
+  <style>
+    #content {
+      width: 30%;
+    }
+  </style>
   {% if form.errors %}
     <div style="display: table; margin: 0 auto; text-align: left;">
       {% for key, value in form.errors.items %}
@@ -25,8 +30,10 @@
     </p>
     <p>Пароль: {{ form.password1 }}</p>
     <p>Подтвердите пароль: {{ form.password2 }}</p>
-    <p><input type="submit" value="Создать аккаунт"></p>
-    <br>
+    <p>
+      <input type="submit" value="Создать аккаунт" />
+    </p>
+    <br />
     <a gray href="{% url 'login' %}">Уже есть аккаунт? Войти</a>
   </form>
 {% endblock %}
