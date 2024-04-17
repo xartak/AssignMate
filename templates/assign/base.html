@@ -2,44 +2,62 @@
 {% load assign_tags %}
 <!DOCTYPE html>
 <html>
-<head>
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="icon" href="{% static "images/AssignMate_icon.png" %}"/>
-    <link href="{% static 'css/homework.css' %}" rel="stylesheet">
-</head>
-<body>
-<div id="content">
-    {% if messages %}
-    {% for message in messages %}
-        {{ message.tags }} {{ message }}
-    {% endfor %}
-    {% endif %}
-    {% block content %}
-    {% endblock %}
-</div>
-<div id="sidebar">
-    <h2>Assignmate</h2>
-    <p>
+  <head>
+    <title>
+      {% block title %}
+
+      {% endblock %}
+    </title>
+    <link rel="icon" href="{% static 'images/AssignMate_icon.png' %}" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="header_title">AssignMate</h1>
+    </header>
+
+    <div id="content">
+      {% if messages %}
+        {% for message in messages %}
+          {{ message.tags }} {{ message }}
+        {% endfor %}
+      {% endif %}
+      {% block content %}
+
+      {% endblock %}
+    </div>
+    <div id="sidebar">
+      <h2>Assignmate</h2>
+      <p>
         It has {% total_homeworks %} homeworks.
-    </p>
-    <hr>
-    {% if user.is_authenticated %}
-        Hi {{ user.username }}!
-        <p><a href="{% url 'assign:courses_list' %}">My Courses</a></p>
-        <p><a href="{% url 'users-profile' %}">My profile</a></p>
+      </p>
+      <hr />
+      {% if user.is_authenticated %}
+        Hi {{ user.username }}!<p>
+          <a href="{% url 'assign:courses_list' %}">My Courses</a>
+        </p>
+        <p>
+          <a href="{% url 'users-profile' %}">My profile</a>
+        </p>
         <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <a href="#" onclick="parentNode.submit();">Log Out</a>
+          {% csrf_token %}
+          <a href="#" onclick="parentNode.submit();">Log Out</a>
         </form>
-    {% else %}
+      {% else %}
         <p>You are not logged in</p>
-        <p><a href="{% url 'login' %}">Log In</a></p>
-        <p><a href="{% url 'signup' %}">Register</a></p>
-        <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
-    {% endif %}
-    <hr>
-    <h3>Latest Homeworks</h3>
-    {% show_latest_homeworks 5 %}
-</div>
-</body>
+        <p>
+          <a href="{% url 'login' %}">Log In</a>
+        </p>
+        <p>
+          <a href="{% url 'signup' %}">Register</a>
+        </p>
+        <p>
+          <a href="{% url 'password_reset' %}">Forgot your password?</a>
+        </p>
+      {% endif %}
+      <hr />
+      <h3>Latest Homeworks</h3>
+      {% show_latest_homeworks 5 %}
+    </div>
+  </body>
 </html>
