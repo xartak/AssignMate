@@ -13,15 +13,13 @@
   </head>
   <body>
     <header id="header">
-      <h1 class="header_title">AssignMate</h1>
-      {% if 'signup' not in request.path and 'login' not in request.path %}
-        <nav>
-          <ul>
-            <a href="/"><li>мои курсы</li></a>
-            <a href="{% url 'users-profile' %}"><li>профиль</li></a>
-          </ul>
-        </nav>
-      {% endif %}
+      <nav>
+        <h1 class="header_title">AssignMate</h1>
+        {% if 'signup' not in request.path and 'login' not in request.path %}
+          <span><a href="/">мои курсы</a></span>
+          <span><a href="{% url 'users-profile' %}">профиль</a></span>
+        {% endif %}
+      </nav>
     </header>
 
     <div id="content">
