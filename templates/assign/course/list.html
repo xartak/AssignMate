@@ -1,16 +1,16 @@
 {% extends "assign/base.html" %}
 {% load assign_tags %}
 
-{% block title %}Available Courses{% endblock %}
+{% block title %}Мои курсы{% endblock %}
 
 {% block content %}
-    <h1>Available Courses</h1>
+    <h1>Доступные курсы</h1>
     {% for course in courses %}
         <div>
             <h2><a href="{% url 'assign:course_detail' pk=course.id %}">{{ course.title }}</a></h2>
-            <p>Published on {{ course.publish }} by {{ course.creator }}</p>
+            <p>Создан {{ course.publish }}, автор: {{ course.creator }}</p>
         </div>
     {% empty %}
-        <p>No courses available.</p>
+        <p>Пока что нет доступных курсов.</p>
     {% endfor %}
 {% endblock %}

@@ -16,8 +16,8 @@
       <nav>
         <h1 class="header_title">AssignMate</h1>
         {% if 'signup' not in request.path and 'login' not in request.path %}
-          <span><a href="/">мои курсы</a></span>
-          <span><a href="{% url 'users-profile' %}">профиль</a></span>
+          <span style="font-weight: 600"><a href="/">мои курсы</a></span>
+          <span style="font-weight: 100"><a href="{% url 'users-profile' %}">профиль</a></span>
         {% endif %}
       </nav>
     </header>
@@ -33,38 +33,4 @@
       {% endblock %}
     </div>
   </body>
-
-  {% comment %} <div id="sidebar">
-    <h2>Assignmate</h2>
-    <p>
-      It has{% total_homeworks %}homeworks.
-    </p>
-    <hr />
-    {% if user.is_authenticated %}
-      Hi {{ user.username }}!<p>
-        <a href="{% url 'assign:courses_list' %}">My Courses</a>
-      </p>
-      <p>
-        <a href="{% url 'users-profile' %}">My profile</a>
-      </p>
-      <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <a href="#" onclick="parentNode.submit();">Log Out</a>
-      </form>
-    {% else %}
-      <p>You are not logged in</p>
-      <p>
-        <a href="{% url 'login' %}">Log In</a>
-      </p>
-      <p>
-        <a href="{% url 'signup' %}">Register</a>
-      </p>
-      <p>
-        <a href="{% url 'password_reset' %}">Forgot your password?</a>
-      </p>
-    {% endif %}
-    <hr />
-    <h3>Latest Homeworks</h3>
-    {% show_latest_homeworks 5 %}
-  </div> {% endcomment %}
 </html>

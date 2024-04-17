@@ -5,30 +5,23 @@
 
 {% block content %}
 <h1>{{ course.title }}</h1>
-<p>Created by {{ course.creator.username }} on {{ course.publish.date }}</p>
+<p class="date">Создан {{ course.creator.username }}, дата создания: {{ course.publish.date }}</p>
 
 {% if request.user == course.creator %}
-    <p><a href="{% url 'assign:add_homework' %}?course_id={{ course.pk }}">Add New Homework</a></p>
+    <p><a href="{% url 'assign:add_homework' %}?course_id={{ course.pk }}">Добавить задание</a></p>
 {% endif %}
 
 {% if course.homeworks.exists %}
-    <h2>Homeworks</h2>
+    <h2>Задания</h2>
     {% for homework in homeworks %}
         <div>
             <h3><a href="{{ homework.get_absolute_url }}">{{ homework.title }}</a></h3>
-            <p>Course: <a href="{% url 'assign:course_detail' pk=course.pk %}">{{ course.title }}</a></p>
-            <p class="tags">
-                Tags:
-                {% for tag in homework.tags.all %}
-                    <a href="{% url 'assign:homework_list_by_tag' tag.slug %}">{{ tag.name }}</a>
-                    {% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            </p>
-            <p class="date">Published {{ homework.publish }} by {{ homework.author }}</p>
+            <p>Курс: <a href="{% url 'assign:course_detail' pk=course.pk %}">{{ course.title }}</a></p>
+            <p class="date">Опубликовано {{ homework.publish }}, автор: {{ homework.author }}</p>
             {{ homework.body|markdown|truncatewords_html:30 }}
         </div>
     {% endfor %}
 {% else %}
-    <p>No homeworks available for this course.</p>
+    <p>В выбранном курсе пока нет заданий.</p>
 {% endif %}
 {% endblock %}

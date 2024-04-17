@@ -1,50 +1,60 @@
-{% extends "assign/base.html" %}
-{% block title %}Profile Page{% endblock title %}
+{% extends 'assign/base.html' %}
+{% block title %}
+  Profile Page
+{% endblock %}
 {% block content %}
-    <div>
-        <img src="{{ user.profile.avatar.url }}" style="cursor: pointer;"/>
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <a href="#" onclick="parentNode.submit();">Log Out</a>
-          </form>
+  <style>
+    #header nav span:nth-child(2) a {
+      font-weight: 100;
+    }
+    
+    #header nav span:nth-child(3) a {
+      font-weight: 600;
+    }
+  </style>
+  <div>
+    <img src="{{ user.profile.avatar.url }}" style="cursor: pointer;" />
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <a href="#" onclick="parentNode.submit();">Log Out</a>
+    </form>
+  </div>
+  {% if user_form.errors %}
+    <div role="alert">
+      <div>
+        {% for key, value in user_form.errors.items %}
+          <strong>{{ value }}</strong>
+        {% endfor %}
+      </div>
+      <button type="button" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     </div>
-    {% if user_form.errors %}
-        <div role="alert">
-            <div>
-                {% for key, value in user_form.errors.items %}
-                    <strong>{{ value }}</strong>
-                {% endfor %}
-            </div>
-            <button type="button" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+  {% endif %}
+  <div class="form-content">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div>
+        <div>
+          <div>
+            <label>Username:</label>
+            {{ user_form.username }}
+            <hr />
+            <label>Email:</label>
+            {{ user_form.email }}
+          </div>
+          <hr />
+          <div>
+            <a href="{% url 'password_change' %}">Change Password</a>
+            <hr />
+            <label>Change Avatar:</label>
+            {{ profile_form.avatar }}
+          </div>
+          <hr />
+          <label>Bio:</label> {{ profile_form.bio }}
         </div>
-    {% endif %}
-    <div class="form-content">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div>
-                <div>
-                    <div>
-                        <label>Username:</label>
-                        {{ user_form.username }}
-                        <hr>
-                        <label>Email:</label>
-                        {{ user_form.email }}
-                    </div>
-                    <hr>
-                    <div><a href="{% url 'password_change' %}">Change Password</a>
-                        <hr>
-                        <label>Change Avatar:</label>
-                        {{ profile_form.avatar }}
-                    </div>
-                    <hr>
-                    <label>Bio:</label> {{ profile_form.bio }}
-                </div>
-            </div>
-            <br><br>
-            <input type="submit" value="Сохранить" />
-            <input type="submit" value="Сброс" style='background-color: #8e8e8e;' />
-        </form>
-    </div>
-{% endblock content %}
+      </div>
+      <br />
+      <input type="submit" value="Сохранить" />
+      <input type="submit" style="background-color: #8e8e8e;" value="Сброс" />
+    </form>
+  </div>
+{% endblock %}
