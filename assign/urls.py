@@ -1,10 +1,14 @@
 from django.urls import path
 from . import views
 from .views import add_homework
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 app_name = 'assign'
 
 urlpatterns = [
+    path('AssignMate_icon.png', RedirectView.as_view(url=staticfiles_storage.url('images/AssignMate_icon.png'))),
+
     path('', views.courses_list,
          name='courses_list'),  # Список всех домашних заданий, доступных пользователю
 
