@@ -123,6 +123,14 @@ input[type=submit] {
     text-transform: uppercase;
 }
 
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+    width: 350px; /* Устанавливаем ширину полей ввода */
+    padding: 5px; /* Увеличиваем отступы вокруг полей */
+    font-size: 16px; /* Увеличиваем размер шрифта */
+}
+
 .errorlist {
     color: #cc0033;
     float: left;
@@ -143,6 +151,11 @@ input[type=submit] {
     font-weight: bold;
     font-size: 12px;
     color: #666;
+}
+
+.profile_header {
+    display: flex;
+    justify-content: space-between;
 }
 
 [type="Homework_title"] {

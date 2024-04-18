@@ -33,7 +33,7 @@
 <p><a href="{% url 'assign:homework_share' homework.id %}">Поделиться заданием...</a></p>
 
 {% if can_submit_solution and not is_teacher %}
-    <button onclick="location.href='{% url 'assign:submit_solution' homework.id %}'">Отправить решение</button>
+    <input type='submit' onclick="location.href='{% url 'assign:submit_solution' homework.id %}'" value="Отправить решение"/>
 {% endif %}
 
 {% if solutions %}

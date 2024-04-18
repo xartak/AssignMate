@@ -1,9 +1,9 @@
 {% extends "assign/base.html" %}
 {% load assign_tags %}
 
-{% block title %}Homework List{% endblock %}
+{% block title %}Список заданий{% endblock %}
 {% block content %}
-<h1>Homeworks</h1>
+<h1>Задания</h1>
 {% if tag %}
     <h2>Posts tagged with "{{ tag.name }}"</h2>
 {% endif %}

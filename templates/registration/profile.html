@@ -12,11 +12,11 @@
       font-weight: 600;
     }
   </style>
-  <div>
+  <div class="profile_header">
     <img src="{{ user.profile.avatar.url }}" style="cursor: pointer;" />
     <form action="{% url 'logout' %}" method="post">
       {% csrf_token %}
-      <a href="#" onclick="parentNode.submit();">Log Out</a>
+      <a href="#" onclick="parentNode.submit();">Выйти</a>
     </form>
   </div>
   {% if user_form.errors %}

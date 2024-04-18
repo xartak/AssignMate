@@ -1,9 +1,9 @@
 {% extends "assign/base.html" %}
 {% block content %}
-<h2>Review Solution</h2>
+<h2>Оценить решение</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Submit Review</button>
+    <input type="submit" value="Подтвердить"/>
 </form>
 {% endblock %}
