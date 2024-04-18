@@ -18,7 +18,7 @@ urlpatterns = [
     path('tag/<str:tag_slug>/',
          views.homework_list, name='homework_list_by_tag'),  # Фильтрация домашних заданий по тегу
 
-    path('<int:year>/<int:month>/<int:day>/<slug:homework_slug>/',
+    path('<int:year>/<int:month>/<int:day>/<str:homework_slug>/',
          views.homework_detail,
          name='homework_detail'),
 

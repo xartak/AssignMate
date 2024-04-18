@@ -70,7 +70,7 @@ class Homework(models.Model):
                                on_delete=models.CASCADE,
                                limit_choices_to={'profile__role': 'teacher'},
                                related_name='assign_homeworks')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='homeworks', null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='homeworks')
     body = models.TextField()
     pdf = models.FileField(upload_to=upload_to, null=True, blank=True)
 
@@ -95,7 +95,7 @@ class Homework(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = slugify(self.title, allow_unicode=True)
         super(Homework, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
