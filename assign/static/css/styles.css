@@ -2,9 +2,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 body {
+    display: flex;
     margin: 0;
     padding: 0;
     font-family: "Raleway";
+    flex-direction: column;
+    min-height: 97vh;
 }
 
 a {
@@ -21,7 +24,7 @@ h2 {
     font-weight: normal;
 }
 
-#header {
+header {
     position: fixed;
     top: 0;
     display: flex;
@@ -35,9 +38,9 @@ h2 {
 
 .header_title {
     margin: 0;
-    padding: 0; 
+    padding: 0;
     position: relative;
-    font-family: "Baloo 2"; 
+    font-family: "Baloo 2";
     font-size: 1.75em;
     font-weight: bold;
     color: #fff;
@@ -62,6 +65,7 @@ nav span a {
 }
 
 #content {
+    flex: 1;
     padding: 2%;
     width: 80%;
     box-shadow: 3px 3px 3px 3px #8e8e8e8a;
@@ -69,8 +73,20 @@ nav span a {
     margin: 5% auto;
 }
 
-#content > div:not(:last-child) {
-    border-bottom: 1px solid #ccc; /* Линия-разделитель */
+#content>div:not(:last-child) {
+    border-bottom: 1px solid #ccc;
+}
+
+footer {
+    margin-top: auto;
+    display: flex;
+    position: absolute bottom;
+    bottom: 0;
+    width: 100%;
+    padding: 1%;
+    background-color: #5B48A9;
+    box-shadow: 5px -5px 5px#82828286;
+    justify-content: center;
 }
 
 .change_password_form {
