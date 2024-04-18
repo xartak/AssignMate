@@ -1,6 +1,6 @@
 {% extends 'assign/base.html' %}
 {% block title %}
-  Профиль
+  Редактировать профиль
 {% endblock %}
 {% block content %}
   <style>
@@ -13,18 +13,12 @@
     }
 
     #content {
-      width: 50%;
-    }
+        width: 50%;
+      }
   </style>
-
   <div class="profile_header">
     <img type="pfp" src="{{ user.profile.avatar.url }}"/>
-    <form action="{% url 'logout' %}" method="post">
-      {% csrf_token %}
-      <a href="#" onclick="parentNode.submit();">Выйти</a>
-    </form>
   </div>
-
   {% if user_form.errors %}
     <div role="alert">
       <div>
@@ -36,21 +30,31 @@
     </div>
   {% endif %}
   <div class="form-content">
-    {% csrf_token %}
-    <div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
       <div>
         <div>
-          <label>Username:</label>
-          {{ user.username }}
+          <div>
+            <label>Логин:</label>
+            {{ user_form.username }}
+            <hr />
+            <label>Пароль:</label>
+            {{ user_form.email }}
+          </div>
           <hr />
-          <label>Email:</label>
-          {{ user.email }}
+          <div>
+            <a href="{% url 'password_change' %}">Change Password</a>
+            <hr />
+            <label>Change Avatar:</label>
+            {{ profile_form.avatar }}
+          </div>
+          <hr />
+          <label>Bio:</label> {{ profile_form.bio }}
         </div>
-        <hr />
-        <label>Bio:</label> {{ user.profile.bio }}
       </div>
-    </div>
-    <br />
-    <a href="{% url 'edit-profile' %}"><button type="submit">Изменить профиль</button></a>
+      <br />
+      <input type="submit" value="Сохранить" />
+      <input type="submit" style="background-color: #8e8e8e;" value="Сброс" />
+    </form>
   </div>
 {% endblock %}

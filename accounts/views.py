@@ -19,7 +19,9 @@ class SignUpView(generic.CreateView):
     template_name = 'registration/signup.html'
 
     def dispatch(self, request, *args, **kwargs):
-        # перенаправит на домашнюю страницу, если пользователь попытается получить доступ к странице регистрации после авторизации
+        # перенаправит на домашнюю страницу,
+        # если пользователь попытается получить
+        # доступ к странице регистрации после авторизации
         if request.user.is_authenticated:
             return redirect(to='/')
 
@@ -54,7 +56,12 @@ class CustomLoginView(LoginView):
         return super(CustomLoginView, self).form_valid(form)
 
 @login_required
-def profile(request):
+def view_profile(request):
+    # This view only fetches and displays profile data
+    return render(request, 'registration/profile.html', {'user': request.user})
+
+@login_required
+def edit_profile(request):
     if request.method == 'POST':
         user_form = UpdateUserForm(request.POST, instance=request.user)
         profile_form = UpdateProfileForm(request.POST, request.FILES, instance=request.user.profile)
@@ -63,12 +70,13 @@ def profile(request):
             user_form.save()
             profile_form.save()
             messages.success(request, 'Your profile is updated successfully')
-            return redirect(to='users-profile')
+            return redirect(to='view-profile')
     else:
         user_form = UpdateUserForm(instance=request.user)
         profile_form = UpdateProfileForm(instance=request.user.profile)
 
-    return render(request, 'registration/profile.html', {'user_form': user_form, 'profile_form': profile_form})
+    return render(request, 'registration/edit_profile.html',
+                  {'user_form': user_form, 'profile_form': profile_form})
 
 class ChangePasswordView(SuccessMessageMixin, PasswordChangeView):
     template_name = 'registration/change_password.html'

@@ -112,6 +112,7 @@ p.date {
 }
 
 /* forms */
+a button[type=submit], 
 input[type=submit] {
     font-weight: bold;
     background: #5B48A9;
@@ -156,6 +157,11 @@ form input[type="password"] {
 .profile_header {
     display: flex;
     justify-content: space-between;
+}
+
+[type="pfp"] {
+    padding-bottom: 10px;
+    border-radius: 50%;
 }
 
 [type="Homework_title"] {
