@@ -30,6 +30,7 @@ h2 {
     background-color: #5B48A9;
     box-shadow: 5px 5px 5px#82828286;
     justify-content: center;
+    z-index: 1;
 }
 
 .header_title {
@@ -49,6 +50,7 @@ nav {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    z-index: 2;
 }
 
 nav span {
@@ -69,6 +71,16 @@ nav span a {
 
 #content > div:not(:last-child) {
     border-bottom: 1px solid #ccc; /* Линия-разделитель */
+}
+
+.change_password_form {
+    display: flex;
+    flex-direction: column;
+    font-size: smaller;
+}
+
+input[type="password"] {
+    margin-top: 5px;
 }
 
 p.date {
@@ -115,6 +127,17 @@ input[type=submit] {
     font-weight: bold;
     font-size: 12px;
     color: #666;
+}
+
+[type="Homework_title"] {
+    display: flex;
+    align-items: top;
+    justify-content: space-between;
+}
+
+[value="Удалить"] {
+    display: flex;
+    position: relative;
 }
 
 [gray] {

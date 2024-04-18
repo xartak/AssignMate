@@ -4,7 +4,6 @@ from taggit.forms import TagField
 
 class EmailHomeworkForm(forms.Form):
     name = forms.CharField(max_length=25)
-    email = forms.EmailField()
     to = forms.EmailField()
     comments = forms.CharField(required=False,
                                widget=forms.Textarea)
@@ -12,7 +11,7 @@ class EmailHomeworkForm(forms.Form):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['name', 'email', 'body']
+        fields = ['name', 'body']
 
 class HomeworkForm(forms.ModelForm):
     tags = TagField(required=False)

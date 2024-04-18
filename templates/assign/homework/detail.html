@@ -4,79 +4,81 @@
 {% block title %}{{ homework.title }}{% endblock %}
 
 {% block content %}
-<h1>{{ homework.title }}</h1>
-<p class="date">
-    Published {{ homework.publish }} by {{ homework.author }}
-</p>
+<h1 type="homework_title">
+    {{ homework.title }} 
 
-{% if request.user == homework.author or request.user.is_staff %}
+    {% if request.user == homework.author or request.user.is_staff %}
     <form method="post" action="{% url 'assign:delete_homework' homework.id %}">
     {% csrf_token %}
-    <button type="submit">Delete</button>
+    <input style="background-color: #a02626;" type="submit" value="Удалить" />
     </form>
-{% endif %}
+    {% endif %}
+</h1>
+
+<p class="date">
+    Опубликовано {{ homework.publish }}, автор: {{ homework.author }}
+</p>
 
 <p>
-    Course: <a href="{% url 'assign:course_detail' pk=homework.course.id %}">{{ homework.course.title }}</a>
+    Курс: <a href="{% url 'assign:course_detail' pk=homework.course.id %}">{{ homework.course.title }}</a>
 </p>
 {{ homework.body|markdown }}
 
 {% if homework.pdf %}
-    <p><a href="{{ homework.pdf.url }}" target="_blank">Download Attached PDF</a></p>
+    <p><a href="{{ homework.pdf.url }}" target="_blank">Загрузить прикрепленный PDF</a></p>
 {% else %}
     <p>No attached PDF.</p>
 {% endif %}
 
-<p><a href="{% url 'assign:homework_share' homework.id %}">Share this Homework</a></p>
-
-<h2>Similar homeworks</h2>
-{% for homework in similar_homeworks %}
-    <p><a href="{{ homework.get_absolute_url }}">{{ homework.title }}</a></p>
-{% empty %}
-    <p>There are no similar homeworks yet.</p>
-{% endfor %}
+<p><a href="{% url 'assign:homework_share' homework.id %}">Поделиться заданием...</a></p>
 
 {% if can_submit_solution and not is_teacher %}
-    <button onclick="location.href='{% url 'assign:submit_solution' homework.id %}'">Submit Solution</button>
+    <button onclick="location.href='{% url 'assign:submit_solution' homework.id %}'">Отправить решение</button>
 {% endif %}
 
 {% if solutions %}
-    <h3>Submitted Solutions</h3>
+    <h2>Отправленные решения</h2>
     <ul>
     {% for solution in solutions %}
         <li>
-            {{ solution.student.username }}'s solution:
+            Решение {{ solution.student.username }}:
             <div>
                 <div class="preformatted-text">{{ solution.answer_text|markdown }}</div>
                 {% if solution.answer_pdf %}
-                    <a href="{{ solution.answer_pdf.url }}">Download PDF</a>
+                    <a href="{{ solution.answer_pdf.url }}">Загрузить PDF</a>
                 {% endif %}
                 {% if solution.grade or solution.teacher_comment %}
-                    <p>Grade: {{ solution.grade|default:"Not graded yet" }}</p>
-                    <p>Teacher's Comment: {{ solution.teacher_comment|default:"No comment" }}</p>
+                    <p>Оценка: {{ solution.grade|default:"еще не оценено" }}</p>
+                    <p>Комментарий: {{ solution.teacher_comment|default:"нет коментария" }}</p>
                 {% endif %}
                 {% if is_teacher %}
-                    <a href="{% url 'assign:review_homework' solution.id %}">Review Solution</a>
+                    <a href="{% url 'assign:review_homework' solution.id %}">Оценить решение</a>
                 {% endif %}
             </div>
         </li>
     {% endfor %}
     </ul>
 {% else %}
-    <p>No solutions submitted yet.</p>
+    <p>Пока что нет отправленных решений.</p>
 {% endif %}
 
 {% with comments.count as total_comments %}
-    <h2>{{ total_comments }} comment{{ total_comments|pluralize }}</h2>
+    {% if total_comments|divisibleby:10 %}
+        <h2>{{ total_comments }} комментариев</h2>
+    {% elif total_comments|add:'0' == '1' %}
+        <h2>{{ total_comments }} комментарий</h2>
+    {% else %}
+        <h2>{{ total_comments }} комментария</h2>
+    {% endif %}
 {% endwith %}
 
 {% for comment in comments %}
     <div class="comment">
-        <p class="info">Comment {{ forloop.counter }} by {{ comment.name }} on {{ comment.created }}</p>
+        <p class="info">Комментарий {{ forloop.counter }} от {{ comment.name }} в {{ comment.created }}</p>
         {{ comment.body|linebreaks }}
     </div>
 {% empty %}
-    <p>There are no comments yet.</p>
+    <p>Пока нет комментариев.</p>
 {% endfor %}
 {% include "assign/homework/includes/comment_form.html" %}
 {% endblock %}
